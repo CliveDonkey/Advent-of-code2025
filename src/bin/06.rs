@@ -79,44 +79,57 @@ pub fn part_two(input: &str) -> Option<u64> {
         let mut number: String = String::new();
 
         for y in 0..grid_height {
-            //parse operator at bottom line
+            //if at bottom line: either do nothing, or parse operator
+            //operator is also end of a number, so the number must be added too
             if y == grid_height - 1 {
                 if grid[y].as_bytes()[x] == '+' as u8 {
-                    println!("number: {number}, row_index: {row_index}");
                     ops[col_index] = Operator::Add;
+
                     numbers[col_index][row_index] = number
                         .trim()
                         .parse()
                         .expect("Could not convert {number} to int");
+
                     row_index = 0;
+
+                    //this avoids an oob-situation
+                    //operator at last column is last number anyways
                     if col_index == 0 {
                         break 'outer;
                     }
                     col_index -= 1;
                     continue 'outer;
                 } else if grid[y].as_bytes()[x] == '*' as u8 {
-                    println!("number: {number}, row_index: {row_index}");
                     ops[col_index] = Operator::Mult;
+
                     numbers[col_index][row_index] = number
                         .trim()
                         .parse()
                         .expect("Could not convert {number} to int");
+
                     row_index = 0;
+
+                    //this avoids an oob-situation
+                    //operator at last column is last number anyways
                     if col_index == 0 {
                         break 'outer;
                     }
                     col_index -= 1;
                     continue 'outer;
                 }
+                //doing noting if no operator
                 continue;
             }
+            //add nothing if nothing in spot
+            //if we add 0 a 4 can become 400
             if grid[y].as_bytes()[x] == ' ' as u8 {
                 continue;
             } else {
                 number.push(grid[y].as_bytes()[x] as char);
             }
+            //end of inner loop, only five lines except for last row logic
         }
-        println!("number: {number}, row_index: {row_index}");
+        //we continue inestead of parsing empty number to avoid incrementing row_index
         if number.is_empty() {
             continue 'outer;
         }
@@ -127,15 +140,7 @@ pub fn part_two(input: &str) -> Option<u64> {
         row_index += 1;
     }
 
-    //transposed debug print:
-    println!("Numbers:");
-    for col in &numbers {
-        for num in col {
-            print!("{num} ");
-        }
-        println!();
-    }
-
+    //suming up all the numbers, same as part 1
     let mut total = 0;
     for (i, column) in numbers.iter().enumerate() {
         let mut col_total = column[0];
